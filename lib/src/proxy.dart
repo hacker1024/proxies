@@ -27,8 +27,8 @@ class Proxy {
 
     String authPrefix;
     if (username != null) {
-      authPrefix = Uri.encodeComponent(username);
-      if (password != null) authPrefix += ':' + Uri.encodeComponent(password);
+      authPrefix = username;
+      if (password != null) authPrefix += ':' + password;
       authPrefix += '@';
     }
 
