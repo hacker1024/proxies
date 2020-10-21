@@ -49,8 +49,6 @@ requires these functions to be implemented:
 ```dart
 /// This class defines functions all proxy providers must implement.
 abstract class ProxyProvider {
-  const ProxyProvider();
-  
   /// Returns a [Proxy] object future, to be used for necessary network operations.
   Future<Proxy> getProxy();
 
