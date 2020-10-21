@@ -1,7 +1,7 @@
 # Proxies
 A Dart package containing a collection of proxy API wrappers.
 
-This package connects to different proxy service's APIs to create an IOClient
+This package connects to different proxy services' APIs to create an IOClient
 that uses the proxy.
 
 ## Supported proxy services
