@@ -36,8 +36,8 @@ final proxyProvider = SimpleProxyProvider('host.com', 8080, 'myUsername', 'myPas
 To create a NordVPN proxy provider:
 ```dart
 final proxyProvider = NordVPNProxyProvider(
-  username: r'***REMOVED***',
-  password: r'***REMOVED***',
+  username: r'myUsername',
+  password: r'myPassword',
   countryCode: 'US',
 );
 ```
