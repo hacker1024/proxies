@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:http/http.dart';
+import 'package:http/io_client.dart';
 import 'package:meta/meta.dart';
 
 import 'proxy.dart';
@@ -12,7 +15,11 @@ abstract class ProxyProvider {
   /// It's recommended to add a line like the following to the implementation:
   /// final _client = ProxyProvider.buildClient();
   @protected
-  static Client buildClient() => Client();
+  static Client buildClient([String userAgent]) {
+    return userAgent == null
+        ? Client()
+        : IOClient(HttpClient()..userAgent = userAgent);
+  }
 
   /// Returns a [Proxy] object future, to be used for necessary network operations.
   Future<Proxy> getProxy();

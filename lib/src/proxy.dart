@@ -33,9 +33,19 @@ class Proxy {
     }
 
     final httpClient = (existingHttpClient ?? HttpClient())
-      ..findProxy = ((uri) {
+      ..findProxy = (uri) {
         return 'PROXY ${authPrefix ?? ''}$host:$port';
-      });
+        // return 'PROXY $host:$port';
+      };
+    // ..addProxyCredentials(
+    //   host,
+    //   port,
+    //   null,
+    //   HttpClientBasicCredentials(
+    //     username,
+    //     password,
+    //   ),
+    // );
 
     return IOClient(httpClient);
   }
