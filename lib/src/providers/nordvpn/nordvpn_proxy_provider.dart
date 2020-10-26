@@ -11,23 +11,33 @@ class NordVPNProxyProvider extends AuthenticatedProxyProvider {
   static const _apiHost = 'api.nordvpn.com';
 
   final _client = ProxyProvider.buildClient();
+  String _countryCode;
 
   /// The country code to use. Must be uppercase.
   /// A full list can be found at https://api.nordvpn.com/v1/servers/countries.
-  final String countryCode;
+  String get countryCode => _countryCode;
+
+  set countryCode(String newCode) {
+    assert(
+      newCode.toUpperCase() == newCode,
+      'Country code must be in upper case!',
+    );
+    _countryCode = newCode;
+  }
 
   Map<String, int> _cachedCountryCodes;
 
   NordVPNProxyProvider({
     @required String username,
     @required String password,
-    @required this.countryCode,
+    @required String countryCode,
   })  : assert(username != null),
         assert(password != null),
         assert(
           countryCode.toUpperCase() == countryCode,
           'Country code must be in upper case!',
         ),
+        _countryCode = countryCode,
         super(username, password);
 
   @override
