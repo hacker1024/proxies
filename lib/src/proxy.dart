@@ -19,9 +19,9 @@ class Proxy {
     this.password,
   });
 
-  /// Generates an [IOClient] from the [Proxy] object.
-  /// An existing [HttpClient] can be provided; one will be generated otherwise.
-  IOClient createIOClient([HttpClient existingHttpClient]) {
+  /// Creates a proxy configuration string.
+  /// Can be used with [HttpClient.findProxy].
+  String get configuration {
     assert(host != null && port != null);
     assert(!(host.contains('@') || host.contains(':')));
 
@@ -32,21 +32,15 @@ class Proxy {
       authPrefix += '@';
     }
 
-    final httpClient = (existingHttpClient ?? HttpClient())
-      ..findProxy = (uri) {
-        return 'PROXY ${authPrefix ?? ''}$host:$port';
-        // return 'PROXY $host:$port';
-      };
-    // ..addProxyCredentials(
-    //   host,
-    //   port,
-    //   null,
-    //   HttpClientBasicCredentials(
-    //     username,
-    //     password,
-    //   ),
-    // );
+    return 'PROXY ${authPrefix ?? ''}$host:$port';
+  }
 
+  /// Generates an [IOClient] from the [Proxy] object.
+  /// An existing [HttpClient] can be provided; one will be generated otherwise.
+  IOClient createIOClient([HttpClient existingHttpClient]) {
+    final findProxyString = configuration;
+    final httpClient = (existingHttpClient ?? HttpClient())
+      ..findProxy = (uri) => findProxyString;
     return IOClient(httpClient);
   }
 }
