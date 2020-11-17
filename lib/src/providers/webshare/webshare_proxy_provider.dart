@@ -31,7 +31,9 @@ class WebshareProxyProvider extends ProxyProvider {
       );
 
   @override
-  Future<Proxy> getProxy() async => (await getProxies())[0].toProxy();
+  Future<Proxy> getProxy() async => (await getProxies())
+      .firstWhere((webshareProxy) => webshareProxy.isValid)
+      .toProxy();
 
   @override
   Future<void> invalidateCaches() async {}
@@ -88,7 +90,7 @@ class WebshareProxy {
   final String password;
   final String address;
   final int port;
-  final bool valid;
+  final bool isValid;
   final DateTime lastVerification;
   final String countryCode;
   final double countryCodeConfidence;
@@ -98,7 +100,7 @@ class WebshareProxy {
         password = json['password'],
         address = json['proxy_address'],
         port = json['ports']['http'],
-        valid = json['valid'],
+        isValid = json['valid'],
         lastVerification = DateTime.parse(json['last_verification']),
         countryCode = json['country_code'],
         countryCodeConfidence = json['country_code_confidence'];
@@ -119,7 +121,7 @@ class WebshareProxy {
           password == other.password &&
           address == other.address &&
           port == other.port &&
-          valid == other.valid &&
+          isValid == other.isValid &&
           lastVerification == other.lastVerification &&
           countryCode == other.countryCode &&
           countryCodeConfidence == other.countryCodeConfidence;
@@ -130,7 +132,7 @@ class WebshareProxy {
       password.hashCode ^
       address.hashCode ^
       port.hashCode ^
-      valid.hashCode ^
+      isValid.hashCode ^
       lastVerification.hashCode ^
       countryCode.hashCode ^
       countryCodeConfidence.hashCode;
