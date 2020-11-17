@@ -7,14 +7,14 @@ import 'package:proxies/src/proxy_provider.dart';
 
 class WebshareProxyProvider extends ProxyProvider {
   /// You API key, created at https://proxy.webshare.io/userapi/keys.
-  final String apiKey;
+  String apiKey;
 
   /// The preferred country code of the retrieved proxy. If left out, or
   /// invalid, no specific country is guaranteed.
-  final String countryCode;
+  String countryCode;
 
   /// The prioritization to use when choosing a proxy.
-  final WebshareProxyPrioritization prioritization;
+  WebshareProxyPrioritization prioritization;
 
   WebshareProxyProvider({
     @required this.apiKey,
