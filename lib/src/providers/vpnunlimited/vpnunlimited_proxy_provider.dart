@@ -188,7 +188,7 @@ class VpnUnlimitedProxyProvider extends AuthenticatedProxyProvider {
             .body,
       );
     } on SocketException {
-      throw ProxyProviderNetworkException();
+      throw const ProxyProviderNetworkException();
     }
   }
 
@@ -209,11 +209,11 @@ class VpnUnlimitedProxyProvider extends AuthenticatedProxyProvider {
     if (response.containsKey('response')) {
       switch (response['response']) {
         case 503:
-          throw ProxyProviderAuthenticationException();
+          throw const ProxyProviderAuthenticationException();
           break;
         case 302:
-          if (!_isGuest) throw ProxyProviderAuthenticationException();
-          throw ProxyProviderSpecificException('302');
+          if (!_isGuest) throw const ProxyProviderAuthenticationException();
+          throw const ProxyProviderSpecificException('302');
       }
     }
 
@@ -243,7 +243,7 @@ class VpnUnlimitedProxyProvider extends AuthenticatedProxyProvider {
         await _registerGuest();
         await login();
       } on SocketException {
-        throw ProxyProviderNetworkException();
+        throw const ProxyProviderNetworkException();
       }
     }
 

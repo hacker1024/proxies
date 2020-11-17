@@ -8,7 +8,8 @@ that uses the proxy.
 There aren't many at the moment - pull requests are welcome!
 See the "Extending" section of this README if you'd like to contribute.
 - Simple (host, port, username, password)
-- NordVPN (requires a paid account)
+- [NordVPN](https://nordvpn.com) (requires a paid account)
+- [Webshare](https://webshare.io) (requires a [free API key](https://proxy.webshare.io/userapi/keys))
 
 ## Usage
 
@@ -41,6 +42,8 @@ final proxyProvider = NordVPNProxyProvider(
   countryCode: 'US',
 );
 ```
+
+Other providers are created in similar ways.
 
 ## Extending
 Adding a proxy provider is fairly straightforward. The base class to extend

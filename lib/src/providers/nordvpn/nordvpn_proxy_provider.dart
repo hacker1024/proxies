@@ -58,9 +58,9 @@ class NordVPNProxyProvider extends AuthenticatedProxyProvider {
         }
       }
 
-      throw ProxyProviderSpecificException('No proxies found!');
+      throw const ProxyProviderNoProxiesFoundException();
     } on SocketException {
-      throw ProxyProviderNetworkException();
+      throw const ProxyProviderNetworkException();
     }
   }
 

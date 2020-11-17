@@ -46,18 +46,27 @@ abstract class AuthenticatedProxyProvider extends ProxyProvider {
 }
 
 /// Providers should throw this if there's a network error.
-class ProxyProviderNetworkException implements Exception {}
+class ProxyProviderNetworkException implements Exception {
+  const ProxyProviderNetworkException();
+}
 
 /// Providers should throw this if there's an authentication error while
 /// generating the proxy.
-class ProxyProviderAuthenticationException implements Exception {}
+class ProxyProviderAuthenticationException implements Exception {
+  const ProxyProviderAuthenticationException();
+}
+
+/// Providers should throw this if no proxies are found.
+class ProxyProviderNoProxiesFoundException implements Exception {
+  const ProxyProviderNoProxiesFoundException();
+}
 
 /// Providers should throw this if there's an error specific to generating
 /// their proxy.
 class ProxyProviderSpecificException implements Exception {
   final String message;
 
-  ProxyProviderSpecificException(this.message);
+  const ProxyProviderSpecificException(this.message);
 
   @override
   String toString() => 'ProxyProviderSpecificException: $message';
