@@ -9,12 +9,12 @@ import 'package:proxies/src/proxy_provider.dart';
 class Proxy {
   final String host;
   final int port;
-  final String username;
-  final String password;
+  final String? username;
+  final String? password;
 
   const Proxy({
-    this.host,
-    this.port,
+    required this.host,
+    required this.port,
     this.username,
     this.password,
   });
@@ -22,13 +22,13 @@ class Proxy {
   /// Creates a proxy configuration string.
   /// Can be used with [HttpClient.findProxy].
   String get configuration {
-    assert(host != null && port != null);
-    assert(!(host.contains('@') || host.contains(':')));
+    assert(!(host.contains('@') || host.contains(':')),
+        'Host contains invalid characters!');
 
-    String authPrefix;
+    String? authPrefix;
     if (username != null) {
-      authPrefix = username;
-      if (password != null) authPrefix += ':' + password;
+      authPrefix = username!;
+      if (password != null) authPrefix += ':' + password!;
       authPrefix += '@';
     }
 
@@ -37,7 +37,7 @@ class Proxy {
 
   /// Generates an [IOClient] from the [Proxy] object.
   /// An existing [HttpClient] can be provided; one will be generated otherwise.
-  IOClient createIOClient([HttpClient existingHttpClient]) {
+  IOClient createIOClient([HttpClient? existingHttpClient]) {
     final findProxyString = configuration;
     final httpClient = (existingHttpClient ?? HttpClient())
       ..findProxy = (uri) => findProxyString;

@@ -5,11 +5,11 @@ import 'dart:math';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart';
-import 'package:meta/meta.dart';
 import 'package:proxies/src/proxy.dart';
 import 'package:proxies/src/proxy_provider.dart';
 
-class VpnUnlimitedProxyProvider extends AuthenticatedProxyProvider {
+class VpnUnlimitedProxyProvider extends AuthenticatedProxyProvider
+    with ProxyProviderClientMixin {
   // The hardcoded '2' in the HTTP headers comes from the end of this.
   // static const _sdkApplicationId = 'com.simplexsolutionsinc.vpnguard.2';
 
@@ -30,29 +30,27 @@ class VpnUnlimitedProxyProvider extends AuthenticatedProxyProvider {
   static final _apiUri =
       Uri(scheme: 'https', host: 'api.vpnunlimitedapp.com', path: 'api/v1');
 
-  static Client _clientField;
-
-  static Client get _client => _clientField ??= _buildClient();
+  @override
+  String get userAgent =>
+      'Dalvik/2.1.0 (Linux; U; Android 11; Pixel 4 XL Build/RP1A.200720.009)';
 
   String _region;
 
   final String _deviceId;
   final bool _isGuest;
 
-  String _accessToken;
-  String _session;
+  String? _accessToken;
+  String? _session;
 
   /// Creates the provider, using the given region.
   /// The default parameters are the guest account login.
   VpnUnlimitedProxyProvider.withRegion({
-    @required String username,
-    @required String password,
-    @required String region,
-    String deviceId,
+    required String username,
+    required String password,
+    required String region,
+    String? deviceId,
   })  : _isGuest = false,
-        assert(username != null),
-        assert(password != null),
-        assert(region != null && region.isNotEmpty),
+        assert(region.isNotEmpty),
         _region = region,
         _deviceId = deviceId ?? _generateDeviceId(),
         super(username, password);
@@ -60,9 +58,9 @@ class VpnUnlimitedProxyProvider extends AuthenticatedProxyProvider {
   /// Creates the provider, using the given server group.
   /// The default parameters are the guest account login.
   VpnUnlimitedProxyProvider.withServerGroup({
-    @required String username,
-    @required String password,
-    @required VpnUnlimitedServerGroup serverGroup,
+    required String username,
+    required String password,
+    required VpnUnlimitedServerGroup serverGroup,
   }) : this.withRegion(
           username: username,
           password: password,
@@ -73,11 +71,10 @@ class VpnUnlimitedProxyProvider extends AuthenticatedProxyProvider {
   /// Uses guest credentials.
   /// The default parameters are the guest account login.
   VpnUnlimitedProxyProvider.guestWithRegion({
-    @required VpnUnlimitedGuestCredentials credentials,
-    @required String region,
-  })  : _isGuest = true,
-        assert(credentials != null),
-        assert(region != null && region.isNotEmpty),
+    required VpnUnlimitedGuestCredentials credentials,
+    required String region,
+  })   : _isGuest = true,
+        assert(region.isNotEmpty),
         _region = region,
         _deviceId = credentials._deviceId,
         super(credentials._username, credentials._password);
@@ -86,8 +83,8 @@ class VpnUnlimitedProxyProvider extends AuthenticatedProxyProvider {
   /// Uses guest credentials.
   /// The default parameters are the guest account login.
   VpnUnlimitedProxyProvider.guestWithServerGroup({
-    @required VpnUnlimitedGuestCredentials credentials,
-    @required VpnUnlimitedServerGroup serverGroup,
+    required VpnUnlimitedGuestCredentials credentials,
+    required VpnUnlimitedServerGroup serverGroup,
   }) : this.guestWithRegion(
           credentials: credentials,
           region: serverGroup.region,
@@ -126,17 +123,15 @@ class VpnUnlimitedProxyProvider extends AuthenticatedProxyProvider {
   @override
   Future<void> invalidateCaches() async {}
 
-  static Client _buildClient() => ProxyProvider.buildClient(
-        'Dalvik/2.1.0 (Linux; U; Android 11; Pixel 4 XL Build/RP1A.200720.009)',
-      );
-
-  /// Returns a list of [VpnUnlimitedServerGroup]s.
+  /// Retrieves a list of [VpnUnlimitedServerGroup]s.
   static Future<List<VpnUnlimitedServerGroup>> getServerGroups() async {
-    // if (_session == null) await _login();
+    final client = Client();
     final serverGroupListJson = (await _makeApiRequestStatic(
+      client,
       _apiUri,
       'vpnservers',
     ))['servers'];
+    client.close();
 
     return [
       for (final serverGroupJson in serverGroupListJson)
@@ -144,7 +139,7 @@ class VpnUnlimitedProxyProvider extends AuthenticatedProxyProvider {
     ];
   }
 
-  static String _generateDeviceId([Random random]) {
+  static String _generateDeviceId([Random? random]) {
     final randomGenerator = random ?? Random();
     return randomGenerator.nextInt(1 << 32).toRadixString(16) +
         randomGenerator.nextInt(1 << 32).toRadixString(16);
@@ -155,12 +150,13 @@ class VpnUnlimitedProxyProvider extends AuthenticatedProxyProvider {
   }
 
   static Future<Map<String, dynamic>> _makeApiRequestStatic(
+    Client client,
     Uri uri,
     String action, [
     Map<String, dynamic> requestData = const {},
-    String deviceId,
-    String accessToken,
-    String session,
+    String? deviceId,
+    String? accessToken,
+    String? session,
   ]) async {
     final requestBytes = _encoder.convert(jsonEncode({
       'action': action,
@@ -176,7 +172,7 @@ class VpnUnlimitedProxyProvider extends AuthenticatedProxyProvider {
 
     try {
       return jsonDecode(
-        (await _client.put(
+        (await client.put(
           uri,
           body: requestBytes,
           headers: {
@@ -198,6 +194,7 @@ class VpnUnlimitedProxyProvider extends AuthenticatedProxyProvider {
     Map<String, dynamic> requestData = const {},
   ]) async {
     final response = await _makeApiRequestStatic(
+      client,
       uri,
       action,
       requestData,
@@ -210,7 +207,6 @@ class VpnUnlimitedProxyProvider extends AuthenticatedProxyProvider {
       switch (response['response']) {
         case 503:
           throw const ProxyProviderAuthenticationException();
-          break;
         case 302:
           if (!_isGuest) throw const ProxyProviderAuthenticationException();
           throw const ProxyProviderSpecificException('302');
@@ -221,7 +217,7 @@ class VpnUnlimitedProxyProvider extends AuthenticatedProxyProvider {
   }
 
   Future<void> _login() async {
-    Map<String, dynamic> loginResponse;
+    late final Map<String, dynamic> loginResponse;
 
     Future<void> login() async {
       loginResponse = await _makeApiRequest(
@@ -321,7 +317,7 @@ class VpnUnlimitedGuestCredentials {
       : _username = _guestUsernamePrefix + deviceId + _guestUsernameSuffix,
         _password = deviceId;
 
-  VpnUnlimitedGuestCredentials([Random random])
+  VpnUnlimitedGuestCredentials([Random? random])
       : this._(VpnUnlimitedProxyProvider._generateDeviceId(random));
 
   @override

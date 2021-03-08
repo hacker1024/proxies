@@ -12,13 +12,14 @@ class SimpleProxyProvider extends AuthenticatedProxyProvider {
       : super(username, password);
 
   /// Validates the given hostname.
+  ///
   /// Can be useful to use in UIs; this package doesn't use this
   /// function itself.
   ///
   /// Returns null if there are no problems, or a description [String]
   /// otherwise.
-  String validateHost(String host) {
-    String validateHostnameOrIP(String host) {
+  String? validateHost(String host) {
+    String? validateHostnameOrIP(String host) {
       // Thanks to these RegEx gods: https://stackoverflow.com/questions/106179/regular-expression-to-match-dns-hostname-or-ip-address
       // Note: must confirm this is RegEx and not an ancient alien language, because I can't tell the difference ATM.
       if (!RegExp(r'^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$')
@@ -41,8 +42,10 @@ class SimpleProxyProvider extends AuthenticatedProxyProvider {
     return validateHostnameOrIP(host);
   }
 
-  /// See [validateHost].
-  String validatePort(String port) {
+  /// Validates the given port string.
+  ///
+  /// See [validateHost] for return values.
+  String? validatePort(String port) {
     if (port.isEmpty) return 'No port given.';
     final parsedPort = int.tryParse(port);
     if (parsedPort == null) return 'Invalid port.';
@@ -52,10 +55,10 @@ class SimpleProxyProvider extends AuthenticatedProxyProvider {
   }
 
   @override
-  String validateUsername(String username) => null;
+  String? validateUsername(String username) => null;
 
   @override
-  String validatePassword(String password) => null;
+  String? validatePassword(String password) => null;
 
   @override
   Future<Proxy> getProxy() async {

@@ -1,28 +1,26 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:meta/meta.dart';
 import 'package:proxies/src/proxy.dart';
 import 'package:proxies/src/proxy_provider.dart';
 
-class WebshareProxyProvider extends ProxyProvider {
+class WebshareProxyProvider extends ProxyProvider
+    with ProxyProviderClientMixin {
   /// You API key, created at https://proxy.webshare.io/userapi/keys.
   String apiKey;
 
   /// The preferred country code of the retrieved proxy. If left out, or
   /// invalid, no specific country is guaranteed.
-  String countryCode;
+  String? countryCode;
 
   /// The prioritization to use when choosing a proxy.
   WebshareProxyPrioritization prioritization;
 
   WebshareProxyProvider({
-    @required this.apiKey,
+    required this.apiKey,
     this.countryCode,
     this.prioritization = WebshareProxyPrioritization.mostRecentVerification,
-  }) : assert(apiKey != null);
-
-  final _client = ProxyProvider.buildClient();
+  });
 
   Uri get _proxyListUri => Uri(
         scheme: 'https',
@@ -41,7 +39,7 @@ class WebshareProxyProvider extends ProxyProvider {
   /// Retreives a list of proxies from the Webshare API.
   Future<List<WebshareProxy>> getProxies() async {
     try {
-      final response = await _client.get(
+      final response = await client.get(
         _proxyListUri.replace(queryParameters: {'countries': countryCode}),
         headers: {HttpHeaders.authorizationHeader: 'Token $apiKey'},
       );

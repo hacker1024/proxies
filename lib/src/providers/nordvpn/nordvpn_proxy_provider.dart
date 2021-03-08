@@ -1,16 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:meta/meta.dart';
 import 'package:proxies/src/proxy.dart';
 import 'package:proxies/src/proxy_provider.dart';
 
 /// A provider to use proxies from NordVPN's API.
-class NordVPNProxyProvider extends AuthenticatedProxyProvider {
+class NordVPNProxyProvider extends AuthenticatedProxyProvider
+    with ProxyProviderClientMixin {
   static const _apiScheme = 'https';
   static const _apiHost = 'api.nordvpn.com';
 
-  final _client = ProxyProvider.buildClient();
   String _countryCode;
 
   /// The country code to use. Must be uppercase.
@@ -25,15 +24,13 @@ class NordVPNProxyProvider extends AuthenticatedProxyProvider {
     _countryCode = newCode;
   }
 
-  Map<String, int> _cachedCountryCodes;
+  Map<String, int>? _cachedCountryCodes;
 
   NordVPNProxyProvider({
-    @required String username,
-    @required String password,
-    @required String countryCode,
-  })  : assert(username != null),
-        assert(password != null),
-        assert(
+    required String username,
+    required String password,
+    required String countryCode,
+  })   : assert(
           countryCode.toUpperCase() == countryCode,
           'Country code must be in upper case!',
         ),
@@ -71,7 +68,7 @@ class NordVPNProxyProvider extends AuthenticatedProxyProvider {
 
   Future<void> _cacheCountryCodes() async {
     final List<dynamic> countriesJson = jsonDecode(
-      (await _client.get(
+      (await client.get(
         Uri(
           scheme: _apiScheme,
           host: _apiHost,
@@ -107,7 +104,7 @@ class NordVPNProxyProvider extends AuthenticatedProxyProvider {
         'limit': '1',
         // // Not really sure what this does; copied from the Android app.
         // // 'filters[servers_technologies][pivot][status]': 'online',
-        'filters[country_id]': _cachedCountryCodes[countryCode].toString(),
+        'filters[country_id]': _cachedCountryCodes![countryCode].toString(),
         // Selects the HTTP Proxy type.
         'filters[servers_technologies][id]': '9',
         // The following are disabled parameters that request for a HTTPS/SSL
@@ -120,6 +117,6 @@ class NordVPNProxyProvider extends AuthenticatedProxyProvider {
       },
     );
 
-    return jsonDecode((await _client.get(requestURI)).body);
+    return jsonDecode((await client.get(requestURI)).body);
   }
 }
