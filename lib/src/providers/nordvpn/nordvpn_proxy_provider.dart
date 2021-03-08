@@ -68,14 +68,13 @@ class NordVPNProxyProvider extends AuthenticatedProxyProvider
 
   Future<void> _cacheCountryCodes() async {
     final List<dynamic> countriesJson = jsonDecode(
-      (await client.get(
+      (await client.read(
         Uri(
           scheme: _apiScheme,
           host: _apiHost,
           path: 'v1/servers/countries',
         ),
-      ))
-          .body,
+      )),
     );
 
     _cachedCountryCodes = {
@@ -117,6 +116,6 @@ class NordVPNProxyProvider extends AuthenticatedProxyProvider
       },
     );
 
-    return jsonDecode((await client.get(requestURI)).body);
+    return jsonDecode((await client.read(requestURI)));
   }
 }
